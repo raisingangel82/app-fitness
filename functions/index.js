@@ -17,32 +17,30 @@ const functionOptions = {
 exports.generateReport = onRequest(functionOptions, (request, response) => {
   // Avvolgi la logica in un middleware CORS
   cors(request, response, async () => {
-
+    
     // Controlla che la richiesta sia di tipo POST
     if (request.method !== "POST") {
       response.status(405).send("Method Not Allowed");
       return;
     }
 
-    // Estrai i dati dal corpo della richiesta HTTP
     const { reportData, historicalData, periodo } = request.body.data;
     
-    // 1. Controlla che l'utente sia autenticato (opzionale con onRequest, ma consigliato)
-    // Se la tua app invia un token, puoi verificarlo qui.
+    // Se la funzione è protetta da un token, il controllo va fatto qui
+    // Se invece è pubblica, questo blocco può essere rimosso.
+    // In questo esempio lo lascio commentato per flessibilità.
+    /*
     if (!request.headers.authorization) {
         response.status(401).send("Unauthorized");
         return;
     }
-    // Per semplicità, in questo esempio non facciamo un controllo sul token
-    // ma `onCall` gestisce questo in automatico.
+    */
 
-    // 2. Controlla che i dati siano presenti
     if (!reportData || !periodo) {
       response.status(400).send("Dati mancanti per la generazione del report.");
       return;
     }
 
-    // 3. Costruisci il prompt per l'IA
     const historicalDataPrompt = historicalData.map(data => 
       `- Data: ${new Date(data.timestamp).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })} | Peso: ${data.peso || 'N/D'} kg, Massa Grassa: ${data.massa_grassa || 'N/D'} %, FC riposo: ${data.fc_riposo || 'N/D'} bpm`
     ).join('\n');
@@ -67,7 +65,7 @@ Sei un esperto di salute e fitness. Analizza i dati forniti per il periodo "${pe
 - Muscoli: ${reportData.muscoli || 'N/D'} kg
 - Proteine: ${reportData.proteine || 'N/D'} %
 - Massa Ossea: ${reportData.massa_ossea || 'N/D'} kg
-- Esercizio Totale: ${reportData.esercizio_kcal || 'N/D'} kcal
+- Esercizio Totale: ${reportData.esercizio_kcal || 'N/D'} kcal (valore totale per il mese)
 - FC a riposo: ${reportData.fc_riposo || 'N/D'} bpm
 - FC min/max: ${reportData.fc_min_max || 'N/D'} bpm
 - Media Riposo Notturno: ${reportData.riposo_punti || 'N/D'} punti
@@ -89,11 +87,11 @@ Sei un esperto di salute e fitness. Analizza i dati forniti per il periodo "${pe
 ### Dati Storici per l'Analisi delle Tendenze (se disponibili)
 ${historicalDataPrompt || 'Nessun dato storico disponibile.'}
 
-Sulla base di tutti questi dati, genera un report in formato HTML. Il report deve essere strutturato in sezioni chiare con intestazioni (## e ###) e deve coprire i seguenti punti:
+Sulla base di tutti questi dati, genera un report in formato HTML. Rispondi solo con il codice HTML, senza tag di apertura o chiusura di markdown (come \`\`\`html) e senza nessun testo aggiuntivo. Il report deve essere strutturato in sezioni chiare con intestazioni (## e ###) e deve coprire i seguenti punti:
 1.  **Riepilogo e Analisi Generale:** Un'analisi complessiva dei dati di questo mese e, se presenti, un confronto con le tendenze storiche.
 2.  **Analisi Composizione Corporea:** Valuta peso, massa grassa, muscoli, IMC e grasso viscerale.
 3.  **Analisi sonno e recupero:** Valuta i dati sul sonno e sulla frequenza cardiaca a riposo.
-4.  **Analisi nutrizionale e attività fisica:** Analizza i dati di YAZIO e dell'attività fisica.
+4.  **Analisi nutrizionale e attività fisica:** Analizza i dati di YAZIO e dell'attività fisica. **Ricorda che l'esercizio totale in kcal è un valore mensile.**
 5.  **Punti di Forza e Punti di Debolezza:** Individua i tuoi punti di forza e le aree in cui potresti migliorare.
 6.  **Consigli Pratici per il prossimo mese:** Suggerisci 3-5 azioni concrete per ottimizzare i risultati.
 `
@@ -109,7 +107,6 @@ Sulla base di tutti questi dati, genera un report in formato HTML. Il report dev
         throw new Error("L'AI non ha generato una risposta valida.");
       }
       
-      // Invia la risposta con l'header CORS corretto e i dati
       response.status(200).json({ reportText: responseText });
 
     } catch (error) {
