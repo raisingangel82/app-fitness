@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Fitness Personale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        details { transition: all 0.3s ease-in-out; }
+        details summary::-webkit-details-marker { display: none; }
+        details summary { list-style: none; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #reportOutput h2 { font-size: 1.5rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.25rem; }
+        #reportOutput h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        #reportOutput p { margin-bottom: 1rem; line-height: 1.6; }
+        #reportOutput ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        #reportOutput li { margin-bottom: 0.5rem; }
+        #reportOutput strong { font-weight: 600; color: #1f2937; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Schermata di Login/Registrazione -->
+    <div id="loginView" class="flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-6">
+                <svg class="mx-auto h-12 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.362-1.44m0 0c-1.397.529-2.756 1.33-4.001 2.311m4.001-2.311a8.23 8.23 0 01-4.001 2.311m0 0a8.25 8.25 0 00-4.001-2.311" /></svg>
+                <h1 class="text-3xl font-bold text-gray-900 mt-4">Bentornato!</h1>
+                <p class="text-gray-600 mt-2">Accedi o registrati per continuare.</p>
+            </div>
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" name="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" name="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div id="authError" class="hidden text-sm text-red-600 bg-red-100 p-3 rounded-md"></div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="submit" id="loginButton" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Accedi</button>
+                        <button type="button" id="registerButton" class="w-full inline-flex justify-center py-2 px-4 border border-indigo-600 shadow-sm text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">Registrati</button>
+                    </div>
+                </form>
+                <div class="mt-6 relative">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">Oppure</span></div>
+                </div>
+                <button id="anonymousLoginButton" class="mt-6 w-full inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Continua come ospite</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vista Principale App -->
+    <div id="appView" class="container mx-auto p-4 md:p-8 max-w-4xl hidden">
+        <header class="text-center mb-8"><div class="flex justify-center items-center gap-3"><svg class="h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.362-1.44m0 0c-1.397.529-2.756 1.33-4.001 2.311m4.001-2.311a8.23 8.23 0 01-4.001 2.311m0 0a8.25 8.25 0 00-4.001-2.311" /></svg><h1 class="text-3xl md:text-4xl font-bold text-gray-900">Dashboard Salute & Fitness</h1></div><p class="text-md text-gray-600 mt-2">Compila il form mensile per generare un'analisi personalizzata.</p><div class="mt-4 text-xs text-gray-500"><span id="userEmailDisplay"></span> | <button id="logoutButton" class="text-indigo-600 hover:underline">Logout</button></div></header>
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg">
+            <div class="flex gap-4 mb-6 border-b pb-4">
+                <button type="button" id="saveLocalButton" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Salva Dati nel Browser</button>
+                <button type="button" id="loadLocalButton" class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Carica Dati Salvati</button>
+            </div>
+
+            <form id="healthForm"><div class="space-y-6">
+                <div class="border border-gray-200 rounded-lg p-4 bg-indigo-50">
+                    <label for="periodo" class="block text-sm font-medium text-gray-900">Seleziona il mese e l'anno per questo report:</label>
+                    <input type="month" id="periodo" name="periodo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
+                <details id="profileDetails" class="border border-gray-200 rounded-lg p-4"><summary class="font-semibold text-lg cursor-pointer flex justify-between items-center"><span>Dati Anagrafici e Stile di Vita</span><svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div><label class="block text-sm font-medium text-gray-700">Età</label><input type="number" id="eta" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 35"></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Sesso Biologico</label><select id="sesso" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"><option value="">Seleziona...</option><option value="Maschio">Maschio</option><option value="Femmina">Femmina</option></select></div>
+                    <div><label class="block text-sm font-medium text-gray-700">Livello Attività Fisica</label><select id="livello_attivita" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"><option value="Sedentario">Sedentario</option><option value="Leggermente Attivo">Leggermente Attivo</option><option value="Attivo">Attivo</option><option value="Molto Attivo">Molto Attivo</option></select></div>
+                </div></details>
+                <details class="border border-gray-200 rounded-lg p-4" open><summary class="font-semibold text-lg cursor-pointer flex justify-between items-center"><span>Dati Bilancia Impedenziometrica</span><svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4"><div><label class="block text-sm font-medium text-gray-700">Peso (kg)</label><input type="number" step="any" id="peso" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 70.5"></div><div><label class="block text-sm font-medium text-gray-700">IMC</label><input type="number" step="any" id="imc" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 22.1"></div><div><label class="block text-sm font-medium text-gray-700">Massa Grassa (%)</label><input type="number" step="any" id="massa_grassa" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 15.2"></div><div><label class="block text-sm font-medium text-gray-700">Acqua (%)</label><input type="number" step="any" id="acqua" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 60.1"></div><div><label class="block text-sm font-medium text-gray-700">Metabolismo Basale (kcal)</label><input type="number" id="metabolismo_basale" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 1650"></div><div><label class="block text-sm font-medium text-gray-700">Grasso Viscerale</label><input type="number" id="grasso_viscerale" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 4"></div><div><label class="block text-sm font-medium text-gray-700">Muscoli (kg)</label><input type="number" step="any" id="muscoli" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 55.3"></div><div><label class="block text-sm font-medium text-gray-700">Proteine (%)</label><input type="number" step="any" id="proteine" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 18.5"></div><div><label class="block text-sm font-medium text-gray-700">Massa Ossea (kg)</label><input type="number" step="any" id="massa_ossea" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 3.1"></div></div></details>
+                <details class="border border-gray-200 rounded-lg p-4"><summary class="font-semibold text-lg cursor-pointer flex justify-between items-center"><span>Dati App Salute (Orologio)</span><svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4"><div><label class="block text-sm font-medium text-gray-700">Esercizio Tot. (kcal)</label><input type="number" id="esercizio_kcal" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 15000"></div><div><label class="block text-sm font-medium text-gray-700">FC a riposo (bpm)</label><input type="number" id="fc_riposo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 55"></div><div><label class="block text-sm font-medium text-gray-700">FC min/max (bpm)</label><input type="text" id="fc_min_max" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 48 / 175"></div><div><label class="block text-sm font-medium text-gray-700">Media Riposo Notturno (punti)</label><input type="number" id="riposo_punti" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 85"></div><div><label class="block text-sm font-medium text-gray-700">Media Sonno (ore)</label><input type="text" id="media_sonno_ore" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 7h 30m"></div><div><label class="block text-sm font-medium text-gray-700">Sonno Profondo (%)</label><input type="number" id="sonno_profondo_perc" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 25"></div><div><label class="block text-sm font-medium text-gray-700">Sonno Leggero (%)</label><input type="number" id="sonno_leggero_perc" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 55"></div><div><label class="block text-sm font-medium text-gray-700">Sonno REM (%)</label><input type="number" id="sonno_rem_perc" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 20"></div><div><label class="block text-sm font-medium text-gray-700">Regolarità Sonno (punti)</label><input type="number" id="regolarita_sonno" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 90"></div><div><label class="block text-sm font-medium text-gray-700">Stress Medio (punti)</label><input type="number" id="stress_medio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 35"></div><div><label class="block text-sm font-medium text-gray-700">SPo2 Mensile (%)</label><input type="text" id="spo2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 95-99"></div><div><label class="block text-sm font-medium text-gray-700">Temp. Cutanea (°C)</label><input type="text" id="temp_cutanea" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. -0.5 / +0.5"></div></div></details>
+                <details class="border border-gray-200 rounded-lg p-4"><summary class="font-semibold text-lg cursor-pointer flex justify-between items-center"><span>Dati App YAZIO (Nutrizione)</span><svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4"><div><label class="block text-sm font-medium text-gray-700">Energia Alimentare (kcal/giorno)</label><input type="number" id="energia_alimentare" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 2200"></div><div><label class="block text-sm font-medium text-gray-700">Carboidrati (g/giorno)</label><input type="number" id="carboidrati" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 250"></div><div><label class="block text-sm font-medium text-gray-700">Proteine (g/giorno)</label><input type="number" id="proteine_yazio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 150"></div><div><label class="block text-sm font-medium text-gray-700">Grassi (g/giorno)</label><input type="number" id="grassi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 70"></div><div><label class="block text-sm font-medium text-gray-700">Acqua (L/giorno)</label><input type="number" step="any" id="acqua_yazio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 2.5"></div><div><label class="block text-sm font-medium text-gray-700">Passi (media/giorno)</label><input type="number" id="passi" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="es. 8000"></div></div></details>
+                <details class="border border-gray-200 rounded-lg p-4"><summary class="font-semibold text-lg cursor-pointer flex justify-between items-center"><span>Note e Referti</span><svg class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></summary><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"><div><label class="block text-sm font-medium text-gray-700">Report Personal Trainer</label><textarea id="report_pt" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Copia qui il report del PT..."></textarea></div><div><label class="block text-sm font-medium text-gray-700">Referti Medici</label><textarea id="report_medici" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2" placeholder="Copia qui dati rilevanti da referti..."></textarea></div></div></details>
+            </div><div class="mt-8 text-center"><button type="submit" class="inline-flex justify-center py-3 px-6 border border-transparent shadow-lg text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700">Salva e Genera Report</button></div></form>
+        </div>
+        <div id="reportContainer" class="mt-10 bg-white p-6 md:p-8 rounded-2xl shadow-lg hidden"><h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-6 text-center">Il Tuo Report Mensile Personalizzato</h2><div id="loader" class="flex justify-center items-center h-40"><div class="loader"></div></div><div id="errorMessage" class="hidden text-center text-red-600 bg-red-100 p-4 rounded-lg"></div><div id="reportOutput" class="prose max-w-none text-gray-700"></div></div>
+    </div>
+    
+    <script src="config.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // NUOVO: Import per le Cloud Functions
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
+
+        console.log("Script principale caricato come modulo.");
+
+        const app = initializeApp(firebaseConfig);
+        console.log("Firebase App inizializzata.");
+        const auth = getAuth(app);
+        console.log("Servizio Firebase Auth ottenuto.");
+        const db = getFirestore(app);
+        console.log("Servizio Firestore ottenuto.");
+        // NUOVO: Inizializza le Functions
+        const functions = getFunctions(app, 'europe-west1'); // Specifica la regione
+        console.log("Servizio Functions ottenuto.");
+
+        // Riferimenti DOM
+        const loginView = document.getElementById('loginView');
+        const appView = document.getElementById('appView');
+        const loginForm = document.getElementById('loginForm');
+        const registerButton = document.getElementById('registerButton');
+        const anonymousLoginButton = document.getElementById('anonymousLoginButton');
+        const logoutButton = document.getElementById('logoutButton');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        const authError = document.getElementById('authError');
+        const healthForm = document.getElementById('healthForm');
+        const reportContainer = document.getElementById('reportContainer');
+        const reportOutput = document.getElementById('reportOutput');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('errorMessage');
+        const profileDetails = document.getElementById('profileDetails');
+        const periodoInput = document.getElementById('periodo');
+        const saveLocalButton = document.getElementById('saveLocalButton');
+        const loadLocalButton = document.getElementById('loadLocalButton');
+        
+        const allFormInputs = Array.from(healthForm.elements);
+        let currentUserId = null;
+
+        function setDefaultPeriod() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            periodoInput.value = `${year}-${month}`;
+        }
+
+        async function loadUserData(userId) {
+            console.log(`Caricamento dati profilo per l'utente: ${userId}`);
+            const userDocRef = doc(db, `users/${userId}/profile`, "data");
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists()) {
+                console.log("Dati profilo trovati.", docSnap.data());
+                const data = docSnap.data();
+                document.getElementById('eta').value = data.eta || '';
+                document.getElementById('sesso').value = data.sesso || '';
+                document.getElementById('livello_attivita').value = data.livello_attivita || 'Sedentario';
+                profileDetails.open = false;
+            } else {
+                console.log("Nessun dato profilo trovato. L'utente deve compilare.");
+                profileDetails.open = true;
+            }
+        }
+
+        onAuthStateChanged(auth, user => {
+            console.log("Stato autenticazione cambiato:", user);
+            if (user) {
+                currentUserId = user.uid;
+                userEmailDisplay.textContent = user.isAnonymous ? 'Ospite' : user.email;
+                loginView.classList.add('hidden');
+                appView.classList.remove('hidden');
+                loadUserData(currentUserId);
+                setDefaultPeriod();
+            } else {
+                currentUserId = null;
+                loginView.classList.remove('hidden');
+                appView.classList.add('hidden');
+            }
+        });
+
+        function handleAuthError(error, context) {
+            console.error(`Errore durante ${context}:`, error);
+            let message = "Si è verificato un errore.";
+            switch (error.code) {
+                case 'auth/wrong-password': message = "Password errata. Riprova."; break;
+                case 'auth/user-not-found': message = "Nessun utente trovato con questa email."; break;
+                case 'auth/email-already-in-use': message = "Questa email è già stata registrata."; break;
+                case 'auth/weak-password': message = "La password deve essere di almeno 6 caratteri."; break;
+                default: message = `Errore sconosciuto: ${error.code}`;
+            }
+            authError.textContent = message;
+            authError.classList.remove('hidden');
+        }
+
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            authError.classList.add('hidden');
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            console.log("Tentativo di login con:", email);
+            signInWithEmailAndPassword(auth, email, password).catch(error => handleAuthError(error, "login"));
+        });
+
+        registerButton.addEventListener('click', () => {
+            authError.classList.add('hidden');
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            console.log("Tentativo di registrazione con:", email);
+            createUserWithEmailAndPassword(auth, email, password).catch(error => handleAuthError(error, "registrazione"));
+        });
+        
+        anonymousLoginButton.addEventListener('click', () => {
+             authError.classList.add('hidden');
+             console.log("Tentativo di login anonimo.");
+             signInAnonymously(auth).catch(error => handleAuthError(error, "login anonimo"));
+        });
+
+        logoutButton.addEventListener('click', () => { 
+            console.log("Tentativo di logout.");
+            signOut(auth);
+        });
+        
+        document.querySelectorAll('details summary').forEach(summary => {
+            summary.addEventListener('click', (event) => {
+                event.preventDefault();
+                summary.parentElement.open = !summary.parentElement.open;
+            });
+        });
+
+        saveLocalButton.addEventListener('click', () => {
+            const dataToSave = {};
+            allFormInputs.forEach(input => {
+                if (input.id) dataToSave[input.id] = input.value;
+            });
+            localStorage.setItem('healthFormData', JSON.stringify(dataToSave));
+            alert('Dati salvati nel browser!');
+            console.log("Dati salvati in localStorage:", dataToSave);
+        });
+
+        loadLocalButton.addEventListener('click', () => {
+            const savedData = localStorage.getItem('healthFormData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                allFormInputs.forEach(input => {
+                    if (input.id && data[input.id]) input.value = data[input.id];
+                });
+                alert('Dati caricati!');
+                console.log("Dati caricati da localStorage:", data);
+            } else {
+                alert('Nessun dato salvato trovato.');
+            }
+        });
+
+        healthForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Submit del form principale avviato.");
+            if (!currentUserId) return;
+
+            const eta = document.getElementById('eta').value;
+            const sesso = document.getElementById('sesso').value;
+            const periodo = periodoInput.value;
+
+            if (!eta || !sesso) {
+                alert("Per favore, compila i campi 'Età' e 'Sesso Biologico' nella sezione Dati Anagrafici.");
+                profileDetails.open = true;
+                return;
+            }
+            if (!periodo) {
+                alert("Per favore, seleziona un mese e un anno per il report.");
+                return;
+            }
+
+            reportContainer.classList.remove('hidden');
+            loader.style.display = 'flex';
+            errorMessage.classList.add('hidden');
+            reportOutput.innerHTML = '';
+
+            const profileData = {
+                eta: eta, sesso: sesso, livello_attivita: document.getElementById('livello_attivita').value,
+            };
+
+            const reportData = {
+                ...profileData,
+                peso: document.getElementById('peso').value, imc: document.getElementById('imc').value, massa_grassa: document.getElementById('massa_grassa').value, acqua: document.getElementById('acqua').value, metabolismo_basale: document.getElementById('metabolismo_basale').value, grasso_viscerale: document.getElementById('grasso_viscerale').value, muscoli: document.getElementById('muscoli').value, proteine: document.getElementById('proteine').value, massa_ossea: document.getElementById('massa_ossea').value,
+                esercizio_kcal: document.getElementById('esercizio_kcal').value, fc_riposo: document.getElementById('fc_riposo').value, fc_min_max: document.getElementById('fc_min_max').value, riposo_punti: document.getElementById('riposo_punti').value, media_sonno_ore: document.getElementById('media_sonno_ore').value, sonno_profondo_perc: document.getElementById('sonno_profondo_perc').value, sonno_leggero_perc: document.getElementById('sonno_leggero_perc').value, sonno_rem_perc: document.getElementById('sonno_rem_perc').value, regolarita_sonno: document.getElementById('regolarita_sonno').value, stress_medio: document.getElementById('stress_medio').value, spo2: document.getElementById('spo2').value, temp_cutanea: document.getElementById('temp_cutanea').value,
+                energia_alimentare: document.getElementById('energia_alimentare').value, carboidrati: document.getElementById('carboidrati').value, proteine_yazio: document.getElementById('proteine_yazio').value, grassi: document.getElementById('grassi').value, acqua_yazio: document.getElementById('acqua_yazio').value, passi: document.getElementById('passi').value,
+                report_pt: document.getElementById('report_pt').value, report_medici: document.getElementById('report_medici').value,
+                timestamp: new Date(`${periodo}-01T12:00:00Z`).toISOString()
+            };
+
+            try {
+                console.log("Salvataggio dati profilo e report in Firestore...");
+                const userDocRef = doc(db, `users/${currentUserId}/profile`, "data");
+                await setDoc(userDocRef, profileData, { merge: true });
+
+                const reportDocId = periodo;
+                const reportDocRef = doc(db, `users/${currentUserId}/monthly_reports`, reportDocId);
+                await setDoc(reportDocRef, reportData);
+                console.log("Dati salvati con successo in Firestore.");
+
+                const reportsCollection = collection(db, `users/${currentUserId}/monthly_reports`);
+                const q = query(reportsCollection);
+                const querySnapshot = await getDocs(q);
+                let historicalData = [];
+                querySnapshot.forEach(doc => historicalData.push(doc.data()));
+                historicalData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                // --- MODIFICA CHIAVE: Chiamata alla Cloud Function ---
+                console.log("Preparazione chiamata alla Cloud Function 'generateReport'...");
+                const generateReport = httpsCallable(functions, 'generateReport');
+                const result = await generateReport({ 
+                    reportData: reportData, 
+                    historicalData: historicalData, 
+                    periodo: periodo 
+                });
+                
+                console.log("Risposta ricevuta dalla Cloud Function:", result);
+                
+                const text = result.data.reportText;
+
+                if (text) {
+                    console.log("Report generato con successo.");
+                    reportOutput.innerHTML = text.replace(/## (.*)/g, '<h2>$1</h2>').replace(/### (.*)/g, '<h3>$1</h3>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/^\* (.*)/gm, '<li>$1</li>').replace(/(\r\n|\n|\r)/gm, "<br>");
+                } else { 
+                    throw new Error("La Cloud Function non ha restituito un report valido."); 
+                }
+
+            } catch (error) {
+                console.error("Errore durante la chiamata alla Cloud Function o la generazione del report:", error);
+                errorMessage.textContent = `Si è verificato un errore: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+            } finally {
+                loader.style.display = 'none';
+                reportContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
