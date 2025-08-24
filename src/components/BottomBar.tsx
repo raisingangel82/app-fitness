@@ -18,12 +18,11 @@ const NavItem: React.FC<{ to: string; icon: React.ElementType; label: string }> 
         }`
       }
     >
-      {({ isActive }) => (
-        <>
-          <Icon size={24} />
-          <span>{label}</span>
-        </>
-      )}
+      {/* La modifica è qui: non richiediamo più '{ isActive }' perché non ci serve */}
+      <>
+        <Icon size={24} />
+        <span>{label}</span>
+      </>
     </NavLink>
   );
 };

@@ -10,7 +10,8 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleAuth = async (authFn: Function) => {
+  // Questa funzione si aspetta un'altra funzione come argomento
+  const handleAuth = async (authFn: () => Promise<any>) => {
     setError('');
     try {
       await authFn();
@@ -48,7 +49,8 @@ export const LoginPage: React.FC = () => {
               <button type="button" onClick={() => handleAuth(() => createUserWithEmailAndPassword(auth, email, password))} className="w-full inline-flex justify-center py-2 px-4 border border-indigo-600 shadow-sm text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50">Registrati</button>
             </div>
           </form>
-          <button onClick={() => handleAuth(signInAnonymously(auth))} className="mt-6 w-full inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Continua come ospite</button>
+          {/* La modifica è qui: abbiamo aggiunto '() =>' prima di signInAnonymously */}
+          <button onClick={() => handleAuth(() => signInAnonymously(auth))} className="mt-6 w-full inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Continua come ospite</button>
         </div>
       </div>
     </div>
