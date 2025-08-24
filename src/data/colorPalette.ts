@@ -1,0 +1,10 @@
+// src/data/colorPalette.ts
+import type { ColorPalette } from '../types';
+
+export const themeColorPalettes: ColorPalette[] = [
+  { name: 'Indigo', base: 'indigo', shades: { '400': { hex: '#818cf8', bgClass: 'bg-indigo-400', textClass: 'text-indigo-400', ringClass: 'ring-indigo-400' }, '700': { hex: '#4338ca', bgClass: 'bg-indigo-700', textClass: 'text-indigo-700', ringClass: 'ring-indigo-700' }, '800': { hex: '#3730a3', bgClass: 'bg-indigo-800', textClass: 'text-indigo-800', ringClass: 'ring-indigo-800' }}},
+  { name: 'Sky', base: 'sky', shades: { '400': { hex: '#38bdf8', bgClass: 'bg-sky-400', textClass: 'text-sky-400', ringClass: 'ring-sky-400' }, '700': { hex: '#0369a1', bgClass: 'bg-sky-700', textClass: 'text-sky-700', ringClass: 'ring-sky-700' }, '800': { hex: '#075985', bgClass: 'bg-sky-800', textClass: 'text-sky-800', ringClass: 'ring-sky-800' }}},
+  { name: 'Green', base: 'green', shades: { '400': { hex: '#4ade80', bgClass: 'bg-green-400', textClass: 'text-green-400', ringClass: 'ring-green-400' }, '700': { hex: '#15803d', bgClass: 'bg-green-700', textClass: 'text-green-700', ringClass: 'ring-green-700' }, '800': { hex: '#166534', bgClass: 'bg-green-800', textClass: 'text-green-800', ringClass: 'ring-green-800' }}},
+  { name: 'Rose', base: 'rose', shades: { '400': { hex: '#fb7185', bgClass: 'bg-rose-400', textClass: 'text-rose-400', ringClass: 'ring-rose-400' }, '700': { hex: '#be123c', bgClass: 'bg-rose-700', textClass: 'text-rose-700', ringClass: 'ring-rose-700' }, '800': { hex: '#9f1239', bgClass: 'bg-rose-800', textClass: 'text-rose-800', ringClass: 'ring-rose-800' }}},
+  { name: 'Orange', base: 'orange', shades: { '400': { hex: '#fb923c', bgClass: 'bg-orange-400', textClass: 'text-orange-400', ringClass: 'ring-orange-400' }, '700': { hex: '#c2410c', bgClass: 'bg-orange-700', textClass: 'text-orange-700', ringClass: 'ring-orange-700' }, '800': { hex: '#9a3412', bgClass: 'bg-orange-800', textClass: 'text-orange-800', ringClass: 'ring-orange-800' }}},
+];
